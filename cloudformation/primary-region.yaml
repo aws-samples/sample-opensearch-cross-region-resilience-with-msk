@@ -1,3 +1,12 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+#
+# DISCLAIMER: This code is provided as a reference implementation and is not
+# intended for production use without thorough review and customization.
+# Review IAM policies, security group rules, and encryption settings to ensure
+# they meet your organization's security requirements. This template does not
+# represent all possible security configurations or best practices.
+
 AWSTemplateFormatVersion: '2010-09-09'
 Description: 'Cross-Region Resilience for OpenSearch Service - Primary Region Infrastructure'
 
@@ -116,6 +125,7 @@ Resources:
     Type: AWS::KMS::Key
     Properties:
       Description: KMS key for MSK cluster encryption
+      EnableKeyRotation: true
       KeyPolicy:
         Version: '2012-10-17'
         Statement:
@@ -482,6 +492,10 @@ Resources:
           FromPort: 443
           ToPort: 443
           SourceSecurityGroupId: !Ref MSKSecurityGroup
+      SecurityGroupEgress:
+        - IpProtocol: '-1'
+          CidrIp: 0.0.0.0/0
+          Description: Allow all outbound traffic
       Tags:
         - Key: Name
           Value: !Sub '${EnvironmentName}-aoss-vpce-sg'

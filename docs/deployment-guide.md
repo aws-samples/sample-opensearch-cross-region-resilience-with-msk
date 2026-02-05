@@ -239,12 +239,12 @@ MSK Replicator enables cross-region data replication. Deploy it separately to av
 ```powershell
 # Get primary region VPC info
 $PRIMARY_SUBNETS = @(
-    (aws cloudformation describe-stacks --stack-name production-vpc-primary --region us-east-1 --query "Stacks[0].Outputs[?OutputKey=='PrivateSubnet1'].OutputValue" --output text),
-    (aws cloudformation describe-stacks --stack-name production-vpc-primary --region us-east-1 --query "Stacks[0].Outputs[?OutputKey=='PrivateSubnet2'].OutputValue" --output text),
-    (aws cloudformation describe-stacks --stack-name production-vpc-primary --region us-east-1 --query "Stacks[0].Outputs[?OutputKey=='PrivateSubnet3'].OutputValue" --output text)
+    (aws cloudformation describe-stacks --stack-name production-vpc-primary --region us-east-1 --query "Stacks[0].Outputs[?OutputKey==\`PrivateSubnet1\`].OutputValue" --output text),
+    (aws cloudformation describe-stacks --stack-name production-vpc-primary --region us-east-1 --query "Stacks[0].Outputs[?OutputKey==\`PrivateSubnet2\`].OutputValue" --output text),
+    (aws cloudformation describe-stacks --stack-name production-vpc-primary --region us-east-1 --query "Stacks[0].Outputs[?OutputKey==\`PrivateSubnet3\`].OutputValue" --output text)
 ) -join ","
 
-$PRIMARY_SG = aws cloudformation describe-stacks --stack-name production-opensearch-primary --region us-east-1 --query "Stacks[0].Outputs[?OutputKey=='MSKSecurityGroupId'].OutputValue" --output text
+$PRIMARY_SG = aws cloudformation describe-stacks --stack-name production-opensearch-primary --region us-east-1 --query "Stacks[0].Outputs[?OutputKey==\`MSKSecurityGroupId\`].OutputValue" --output text
 
 # Deploy with primary region VPC parameters
 aws cloudformation update-stack `
@@ -391,12 +391,12 @@ aws kafka update-connectivity --cluster-arn <MSK_ARN> --current-version <VERSION
 ```powershell
 # Get primary region VPC info
 $PRIMARY_SUBNETS = @(
-    (aws cloudformation describe-stacks --stack-name production-vpc-primary --region us-east-1 --query "Stacks[0].Outputs[?OutputKey=='PrivateSubnet1'].OutputValue" --output text),
-    (aws cloudformation describe-stacks --stack-name production-vpc-primary --region us-east-1 --query "Stacks[0].Outputs[?OutputKey=='PrivateSubnet2'].OutputValue" --output text),
-    (aws cloudformation describe-stacks --stack-name production-vpc-primary --region us-east-1 --query "Stacks[0].Outputs[?OutputKey=='PrivateSubnet3'].OutputValue" --output text)
+    (aws cloudformation describe-stacks --stack-name production-vpc-primary --region us-east-1 --query "Stacks[0].Outputs[?OutputKey==\`PrivateSubnet1\`].OutputValue" --output text),
+    (aws cloudformation describe-stacks --stack-name production-vpc-primary --region us-east-1 --query "Stacks[0].Outputs[?OutputKey==\`PrivateSubnet2\`].OutputValue" --output text),
+    (aws cloudformation describe-stacks --stack-name production-vpc-primary --region us-east-1 --query "Stacks[0].Outputs[?OutputKey==\`PrivateSubnet3\`].OutputValue" --output text)
 ) -join ","
 
-$PRIMARY_SG = aws cloudformation describe-stacks --stack-name production-opensearch-primary --region us-east-1 --query "Stacks[0].Outputs[?OutputKey=='MSKSecurityGroupId'].OutputValue" --output text
+$PRIMARY_SG = aws cloudformation describe-stacks --stack-name production-opensearch-primary --region us-east-1 --query "Stacks[0].Outputs[?OutputKey==\`MSKSecurityGroupId\`].OutputValue" --output text
 
 # Then include these in your CloudFormation parameters
 ```

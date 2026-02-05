@@ -1,4 +1,10 @@
 #!/usr/bin/env python3
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+#
+# DISCLAIMER: This code is provided as a reference implementation and is not
+# intended for production use without thorough review and customization.
+
 """
 Test data producer for OpenSearch MSK integration
 Produces sample log data to MSK topic for testing cross-region replication

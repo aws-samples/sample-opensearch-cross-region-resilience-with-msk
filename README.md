@@ -138,10 +138,42 @@ This solution incurs costs for:
 
 ## Security
 
-- IAM authentication for all services
-- TLS encryption in transit
-- Encryption at rest for OpenSearch
-- VPC isolation with private subnets
+### Principle of Least Privilege
+
+IAM roles in this solution are configured with permissions scoped to specific resources. Review and customize IAM policies based on your organization's security requirements.
+
+- [AWS IAM Best Practices](https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html)
+- [Grant Least Privilege](https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#grant-least-privilege)
+- [IAM Policy Evaluation Logic](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_evaluation-logic.html)
+
+### OpenSearch Domain Security
+
+OpenSearch Serverless collections use encryption, network policies, and data access policies.
+
+- [OpenSearch Serverless Security](https://docs.aws.amazon.com/opensearch-service/latest/developerguide/serverless-security.html)
+- [Data Access Control for OpenSearch Serverless](https://docs.aws.amazon.com/opensearch-service/latest/developerguide/serverless-data-access.html)
+- [Network Access for OpenSearch Serverless](https://docs.aws.amazon.com/opensearch-service/latest/developerguide/serverless-network.html)
+
+### Amazon MSK Security
+
+MSK clusters use IAM authentication, encryption in transit (TLS), and encryption at rest (KMS).
+
+- [Amazon MSK Security](https://docs.aws.amazon.com/msk/latest/developerguide/security.html)
+- [MSK IAM Access Control](https://docs.aws.amazon.com/msk/latest/developerguide/iam-access-control.html)
+- [MSK Encryption](https://docs.aws.amazon.com/msk/latest/developerguide/msk-encryption.html)
+
+### Security Considerations
+
+This solution provides a reference architecture. Before deploying to production:
+
+- Review and customize IAM policies to match your least-privilege requirements
+- Enable VPC Flow Logs for network traffic monitoring
+- Configure CloudWatch alarms for security-related metrics
+- Implement additional network controls (NACLs, security group rules) as needed
+- Enable AWS CloudTrail for API activity logging
+- Consider enabling AWS Config rules for compliance monitoring
+- Review KMS key policies and rotation settings
+- Conduct a security review specific to your use case and compliance requirements
 
 ## Contributing
 

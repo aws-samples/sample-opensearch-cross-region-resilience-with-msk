@@ -1,3 +1,12 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+#
+# DISCLAIMER: This code is provided as a reference implementation and is not
+# intended for production use without thorough review and customization.
+# Review IAM policies, security group rules, and encryption settings to ensure
+# they meet your organization's security requirements. This template does not
+# represent all possible security configurations or best practices.
+
 AWSTemplateFormatVersion: '2010-09-09'
 Description: 'Lambda function for testing MSK Active-Active replication'
 

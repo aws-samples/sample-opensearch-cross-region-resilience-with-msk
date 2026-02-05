@@ -1,3 +1,11 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+#
+# DISCLAIMER: This code is provided as a reference implementation and is not
+# intended for production use without thorough review and customization.
+# Review IAM policies and security configurations to ensure they meet your
+# organization's security requirements.
+
 """
 MSK Test Producer Lambda Function
 Produces test messages to MSK cluster for validating cross-region replication

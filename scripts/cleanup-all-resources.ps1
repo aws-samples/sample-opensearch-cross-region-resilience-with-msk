@@ -1,3 +1,9 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+#
+# DISCLAIMER: This code is provided as a reference implementation and is not
+# intended for production use without thorough review and customization.
+#
 # cleanup-all-resources.ps1
 # Complete cleanup script for AWS OpenSearch Cross-Region setup
 

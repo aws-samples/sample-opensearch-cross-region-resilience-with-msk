@@ -1,3 +1,11 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+#
+# DISCLAIMER: This code is provided as a reference implementation and is not
+# intended for production use without thorough review and customization.
+# Review IAM policies and security configurations to ensure they meet your
+# organization's security requirements.
+#
 # Cross-Region Active-Active OpenSearch Deployment Script
 # This script deploys the complete infrastructure in both regions
 #
@@ -347,12 +355,12 @@ if ($DeployMSKReplicator) {
     
     # Get primary region VPC info for MSK Replicator
     $PRIMARY_SUBNETS = @(
-        (aws cloudformation describe-stacks --stack-name "$EnvironmentName-vpc-primary" --region $PrimaryRegion --query "Stacks[0].Outputs[?OutputKey=='PrivateSubnet1'].OutputValue" --output text),
-        (aws cloudformation describe-stacks --stack-name "$EnvironmentName-vpc-primary" --region $PrimaryRegion --query "Stacks[0].Outputs[?OutputKey=='PrivateSubnet2'].OutputValue" --output text),
-        (aws cloudformation describe-stacks --stack-name "$EnvironmentName-vpc-primary" --region $PrimaryRegion --query "Stacks[0].Outputs[?OutputKey=='PrivateSubnet3'].OutputValue" --output text)
+        (aws cloudformation describe-stacks --stack-name "$EnvironmentName-vpc-primary" --region $PrimaryRegion --query "Stacks[0].Outputs[?OutputKey==``PrivateSubnet1``].OutputValue" --output text),
+        (aws cloudformation describe-stacks --stack-name "$EnvironmentName-vpc-primary" --region $PrimaryRegion --query "Stacks[0].Outputs[?OutputKey==``PrivateSubnet2``].OutputValue" --output text),
+        (aws cloudformation describe-stacks --stack-name "$EnvironmentName-vpc-primary" --region $PrimaryRegion --query "Stacks[0].Outputs[?OutputKey==``PrivateSubnet3``].OutputValue" --output text)
     ) -join ","
     
-    $PRIMARY_SG = aws cloudformation describe-stacks --stack-name "$EnvironmentName-opensearch-primary" --region $PrimaryRegion --query "Stacks[0].Outputs[?OutputKey=='MSKSecurityGroupId'].OutputValue" --output text
+    $PRIMARY_SG = aws cloudformation describe-stacks --stack-name "$EnvironmentName-opensearch-primary" --region $PrimaryRegion --query "Stacks[0].Outputs[?OutputKey==``MSKSecurityGroupId``].OutputValue" --output text
     
     Write-Info "Primary subnets: $PRIMARY_SUBNETS"
     Write-Info "Primary security group: $PRIMARY_SG"
