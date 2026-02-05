@@ -1,0 +1,52 @@
+# Dependencies and build artifacts
+lambda-layer/
+node_modules/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Zip files (generated artifacts)
+*.zip
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# AWS credentials and sensitive files
+.aws/
+*.pem
+*.key
+credentials
+config
+
+# Terraform state (if using Terraform)
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Test output files
+response*.json
+output*.json
+lambda-payload*.json
+
+# Local development
+local/
+tmp/

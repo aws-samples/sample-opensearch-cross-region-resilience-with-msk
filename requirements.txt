@@ -1,0 +1,4 @@
+# Python dependencies for Lambda layer and testing
+kafka-python>=2.0.0
+aws-msk-iam-sasl-signer-python>=1.0.0
+boto3>=1.26.0
