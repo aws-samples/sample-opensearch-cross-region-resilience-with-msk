@@ -33,7 +33,7 @@ A serverless, active-active cross-region architecture for Amazon OpenSearch usin
 
 - **Active-Active Replication** - Both regions process data simultaneously
 - **Near Real-Time Sync** - MSK Replicator provides sub-second replication
-- **Serverless** - No EC2 instances; uses Lambda for testing
+- **Producers** - Lambda function for testing
 - **Automatic Failover** - No manual reconfiguration during failback
 - **IDENTICAL Topic Naming** - Same topic names in both regions with loop prevention
 
