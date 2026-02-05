@@ -147,6 +147,12 @@ This solution incurs costs for:
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
+## Authors and Acknowledgment
+
+- Qais Poonawala - qppoonaw@amazon.com
+- Sriharsha Subramanya Begolli - begollis@amazon.com
+- Jay Jothi - jayjothe@amazon.com
+
 ## License
 
 [MIT License](LICENSE)
