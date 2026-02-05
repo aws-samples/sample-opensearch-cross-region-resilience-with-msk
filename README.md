@@ -40,13 +40,19 @@ A serverless, active-active cross-region architecture for Amazon OpenSearch usin
 ## Quick Start
 
 ```powershell
-# 1. Deploy VPC infrastructure
+# 1. Deploy VPC infrastructure in BOTH regions
 aws cloudformation create-stack --stack-name production-vpc-primary `
   --template-body file://cloudformation/vpc-infrastructure.yaml `
   --parameters ParameterKey=EnvironmentName,ParameterValue=production `
   --region us-east-1 --capabilities CAPABILITY_NAMED_IAM
 
-# 2. Deploy primary region
+aws cloudformation create-stack --stack-name production-vpc-secondary `
+  --template-body file://cloudformation/vpc-infrastructure.yaml `
+  --parameters ParameterKey=EnvironmentName,ParameterValue=production `
+    ParameterKey=VpcCIDR,ParameterValue=10.1.0.0/16 `
+  --region us-west-2 --capabilities CAPABILITY_NAMED_IAM
+
+# 2. Deploy primary region (after VPC completes)
 aws cloudformation create-stack --stack-name production-opensearch-primary `
   --template-body file://cloudformation/primary-region.yaml `
   --parameters ParameterKey=EnvironmentName,ParameterValue=production `
