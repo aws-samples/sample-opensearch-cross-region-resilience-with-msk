@@ -114,15 +114,16 @@ Resources:
       VpcId: !Ref VPC
 
   # Public Subnets
-  # Note: MapPublicIpOnLaunch is set to true for public subnets that host NAT Gateways.
-  # MSK and other workloads run in private subnets where MapPublicIpOnLaunch is false.
+  # Note: Public subnets host NAT Gateways only. NAT Gateways use Elastic IPs, not auto-assigned public IPs.
+  # MapPublicIpOnLaunch is set to false as it's not required for NAT Gateway functionality.
+  # MSK and other workloads run in private subnets.
   PublicSubnet1:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref VPC
       AvailabilityZone: !Select [0, !GetAZs '']
       CidrBlock: !Ref PublicSubnet1CIDR
-      MapPublicIpOnLaunch: true
+      MapPublicIpOnLaunch: false
       Tags:
         - Key: Name
           Value: !Sub '${EnvironmentName}-public-subnet-1'
@@ -135,7 +136,7 @@ Resources:
       VpcId: !Ref VPC
       AvailabilityZone: !Select [1, !GetAZs '']
       CidrBlock: !Ref PublicSubnet2CIDR
-      MapPublicIpOnLaunch: true
+      MapPublicIpOnLaunch: false
       Tags:
         - Key: Name
           Value: !Sub '${EnvironmentName}-public-subnet-2'
@@ -148,7 +149,7 @@ Resources:
       VpcId: !Ref VPC
       AvailabilityZone: !Select [2, !GetAZs '']
       CidrBlock: !Ref PublicSubnet3CIDR
-      MapPublicIpOnLaunch: true
+      MapPublicIpOnLaunch: false
       Tags:
         - Key: Name
           Value: !Sub '${EnvironmentName}-public-subnet-3'

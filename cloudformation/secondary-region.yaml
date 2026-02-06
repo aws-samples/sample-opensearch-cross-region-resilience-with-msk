@@ -183,7 +183,9 @@ Resources:
       FromPort: 443
       ToPort: 443
       CidrIp: 0.0.0.0/0
-      Description: Allow HTTPS outbound for AWS API calls
+      # Note: 0.0.0.0/0 is required for HTTPS egress to reach AWS service endpoints (MSK, CloudWatch, etc.)
+      # These endpoints are public and cannot be restricted to specific CIDRs without VPC endpoints
+      Description: Allow HTTPS outbound for AWS API calls (required for service endpoints)
 
   MSKSecurityGroupEgressMSK:
     Type: AWS::EC2::SecurityGroupEgress
@@ -193,6 +195,7 @@ Resources:
       FromPort: 9098
       ToPort: 9098
       CidrIp: 0.0.0.0/0
+      # Note: 0.0.0.0/0 is required for cross-region MSK replication to reach brokers in other regions
       Description: Allow MSK IAM authentication outbound for cross-region replication
 
   # MSK Cluster Configuration
@@ -328,6 +331,7 @@ Resources:
       Handler: index.handler
       Role: !GetAtt GetBootstrapBrokersLambdaRole.Arn
       Timeout: 60
+      ReservedConcurrentExecutions: 5
       VpcConfig:
         SubnetIds: !If
           - UseExistingVPCCondition
@@ -519,6 +523,36 @@ Resources:
             Status: Enabled
             ExpirationInDays: 30
 
+  # S3 Bucket Policy for DLQ - Restricts access to OSI pipeline role only
+  DLQBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref DLQBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: AllowOSIPipelineAccess
+            Effect: Allow
+            Principal:
+              AWS: !GetAtt OSIPipelineRole.Arn
+            Action:
+              - 's3:PutObject'
+              - 's3:GetObject'
+              - 's3:ListBucket'
+            Resource:
+              - !GetAtt DLQBucket.Arn
+              - !Sub '${DLQBucket.Arn}/*'
+          - Sid: DenyInsecureTransport
+            Effect: Deny
+            Principal: '*'
+            Action: 's3:*'
+            Resource:
+              - !GetAtt DLQBucket.Arn
+              - !Sub '${DLQBucket.Arn}/*'
+            Condition:
+              Bool:
+                'aws:SecureTransport': 'false'
+
   # OpenSearch Serverless Collection
   OpenSearchCollection:
     Type: AWS::OpenSearchServerless::Collection
@@ -645,7 +679,8 @@ Resources:
           FromPort: 443
           ToPort: 443
           CidrIp: 0.0.0.0/0
-          Description: Allow HTTPS outbound for OpenSearch Serverless API calls
+          # Note: 0.0.0.0/0 is required for HTTPS egress to reach OpenSearch Serverless endpoints
+          Description: Allow HTTPS outbound for OpenSearch Serverless API calls (required for service endpoints)
       Tags:
         - Key: Name
           Value: !Sub '${EnvironmentName}-aoss-vpce-secondary-sg'
