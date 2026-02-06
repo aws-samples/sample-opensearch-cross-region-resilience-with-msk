@@ -114,6 +114,8 @@ Resources:
       VpcId: !Ref VPC
 
   # Public Subnets
+  # Note: MapPublicIpOnLaunch is set to true for public subnets that host NAT Gateways.
+  # MSK and other workloads run in private subnets where MapPublicIpOnLaunch is false.
   PublicSubnet1:
     Type: AWS::EC2::Subnet
     Properties:
@@ -375,10 +377,10 @@ Resources:
       SubnetId: !Ref PrivateSubnet3
 
   # VPC Flow Logs (Optional but recommended)
+  # Note: RoleName is omitted to allow CloudFormation stack updates that require resource replacement
   VPCFlowLogsRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Sub '${EnvironmentName}-vpc-flow-logs-role'
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
@@ -393,12 +395,14 @@ Resources:
             Statement:
               - Effect: Allow
                 Action:
-                  - 'logs:CreateLogGroup'
                   - 'logs:CreateLogStream'
                   - 'logs:PutLogEvents'
-                  - 'logs:DescribeLogGroups'
                   - 'logs:DescribeLogStreams'
-                Resource: '*'
+                Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/vpc/${EnvironmentName}:*'
+              - Effect: Allow
+                Action:
+                  - 'logs:DescribeLogGroups'
+                Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:*'
 
   VPCFlowLogsLogGroup:
     Type: AWS::Logs::LogGroup

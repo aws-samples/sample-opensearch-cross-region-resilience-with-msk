@@ -33,10 +33,10 @@ Parameters:
 
 Resources:
   # IAM Role for Lambda
+  # Note: RoleName is omitted to allow CloudFormation stack updates that require resource replacement
   TestLambdaRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Sub '${EnvironmentName}-msk-test-lambda-role'
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:

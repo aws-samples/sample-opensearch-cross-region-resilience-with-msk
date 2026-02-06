@@ -129,6 +129,8 @@ Resources:
       KeyPolicy:
         Version: '2012-10-17'
         Statement:
+          # Note: In KMS key policies, Resource: '*' refers to "this key" (the key the policy is attached to)
+          # This is standard AWS practice per https://docs.aws.amazon.com/kms/latest/developerguide/key-policies.html
           - Sid: Enable IAM User Permissions
             Effect: Allow
             Principal:
@@ -172,15 +174,27 @@ Resources:
       FromPort: 9098
       ToPort: 9098
       SourceSecurityGroupId: !Ref MSKSecurityGroup
-      Description: Allow MSK IAM authentication
+      Description: Allow MSK IAM authentication from within the security group
 
   MSKSecurityGroupEgress:
     Type: AWS::EC2::SecurityGroupEgress
     Properties:
       GroupId: !Ref MSKSecurityGroup
-      IpProtocol: -1
+      IpProtocol: tcp
+      FromPort: 443
+      ToPort: 443
       CidrIp: 0.0.0.0/0
-      Description: Allow all outbound traffic
+      Description: Allow HTTPS outbound for AWS API calls
+
+  MSKSecurityGroupEgressMSK:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      GroupId: !Ref MSKSecurityGroup
+      IpProtocol: tcp
+      FromPort: 9098
+      ToPort: 9098
+      CidrIp: 0.0.0.0/0
+      Description: Allow MSK IAM authentication outbound for cross-region replication
 
   # MSK Cluster Configuration
   MSKConfiguration:
@@ -283,10 +297,10 @@ Resources:
       RetentionInDays: 7
 
   # Lambda function to get MSK bootstrap brokers
+  # Note: RoleName is omitted to allow CloudFormation stack updates that require resource replacement
   GetBootstrapBrokersLambdaRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Sub '${EnvironmentName}-get-bootstrap-brokers-role'
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
@@ -295,7 +309,7 @@ Resources:
               Service: lambda.amazonaws.com
             Action: 'sts:AssumeRole'
       ManagedPolicyArns:
-        - 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+        - 'arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole'
       Policies:
         - PolicyName: MSKDescribe
           PolicyDocument:
@@ -305,7 +319,7 @@ Resources:
                 Action:
                   - 'kafka:GetBootstrapBrokers'
                   - 'kafka:DescribeCluster'
-                Resource: '*'
+                Resource: !Sub 'arn:aws:kafka:${AWS::Region}:${AWS::AccountId}:cluster/${EnvironmentName}-msk-primary/*'
 
   GetBootstrapBrokersLambda:
     Type: AWS::Lambda::Function
@@ -315,6 +329,15 @@ Resources:
       Handler: index.handler
       Role: !GetAtt GetBootstrapBrokersLambdaRole.Arn
       Timeout: 60
+      VpcConfig:
+        SubnetIds: !If
+          - UseExistingVPCCondition
+          - !Ref PrivateSubnetIds
+          - - Fn::ImportValue: !Sub '${EnvironmentName}-private-subnet-1'
+            - Fn::ImportValue: !Sub '${EnvironmentName}-private-subnet-2'
+            - Fn::ImportValue: !Sub '${EnvironmentName}-private-subnet-3'
+        SecurityGroupIds:
+          - !Ref MSKSecurityGroup
       Code:
         ZipFile: |
           import boto3
@@ -492,19 +515,22 @@ Resources:
           FromPort: 443
           ToPort: 443
           SourceSecurityGroupId: !Ref MSKSecurityGroup
+          Description: Allow HTTPS traffic from MSK security group for OpenSearch Serverless access
       SecurityGroupEgress:
-        - IpProtocol: '-1'
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
           CidrIp: 0.0.0.0/0
-          Description: Allow all outbound traffic
+          Description: Allow HTTPS outbound for OpenSearch Serverless API calls
       Tags:
         - Key: Name
           Value: !Sub '${EnvironmentName}-aoss-vpce-sg'
 
   # IAM Role for OSI Pipeline
+  # Note: RoleName is omitted to allow CloudFormation stack updates that require resource replacement
   OSIPipelineRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Sub '${EnvironmentName}-osi-pipeline-primary-role'
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
@@ -659,11 +685,11 @@ Resources:
           Value: !Sub '${EnvironmentName}-osi-primary'
 
   # IAM Role for MSK Replicator (Reverse: Secondary → Primary)
+  # Note: RoleName is omitted to allow CloudFormation stack updates that require resource replacement
   MSKReplicatorRole:
     Type: AWS::IAM::Role
     Condition: DeployReverseReplicatorCondition
     Properties:
-      RoleName: !Sub '${EnvironmentName}-msk-replicator-reverse-role'
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
@@ -709,16 +735,27 @@ Resources:
                 Resource:
                   - !Sub 'arn:aws:kafka:${SecondaryRegion}:${AWS::AccountId}:group/${EnvironmentName}-msk-secondary/*'
                   - !Sub 'arn:aws:kafka:${AWS::Region}:${AWS::AccountId}:group/${EnvironmentName}-msk-primary/*'
-              # EC2 permissions for network interfaces
+              # EC2 permissions for network interfaces (EC2 Describe actions require * resource per AWS documentation)
               - Effect: Allow
                 Action:
                   - 'ec2:CreateNetworkInterface'
-                  - 'ec2:DescribeNetworkInterfaces'
                   - 'ec2:DeleteNetworkInterface'
+                Resource: !Sub 'arn:aws:ec2:*:${AWS::AccountId}:network-interface/*'
+              - Effect: Allow
+                Action:
+                  - 'ec2:CreateNetworkInterface'
+                Resource:
+                  - !Sub 'arn:aws:ec2:*:${AWS::AccountId}:subnet/*'
+                  - !Sub 'arn:aws:ec2:*:${AWS::AccountId}:security-group/*'
+              - Effect: Allow
+                Action:
+                  - 'ec2:DescribeNetworkInterfaces'
                   - 'ec2:DescribeSubnets'
                   - 'ec2:DescribeVpcs'
                   - 'ec2:DescribeSecurityGroups'
                 Resource: '*'
+                # Note: EC2 Describe* actions do not support resource-level permissions per AWS documentation
+                # https://docs.aws.amazon.com/service-authorization/latest/reference/list_amazonec2.html
 
   # MSK Replicator (Reverse: Secondary → Primary) for Active-Active
   # This replicator handles data written to secondary region being replicated to primary
