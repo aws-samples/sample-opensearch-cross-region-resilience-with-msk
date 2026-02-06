@@ -1,0 +1,17 @@
+# Gitleaks ignore file
+# These are false positives from JMESPath query patterns (OutputKey==`...`) that look like API keys
+
+# deploy-all.ps1 - JMESPath queries for CloudFormation outputs
+bb3964e0f6a9e3b1ca3b6832e6886063356a0bae:scripts/deploy-all.ps1:generic-api-key:359
+
+# deployment-guide.md - JMESPath queries in documentation examples
+63b3e5ce90a664997d94c420c194baabdc0519b9:docs/deployment-guide.md:generic-api-key:394
+63b3e5ce90a664997d94c420c194baabdc0519b9:docs/deployment-guide.md:generic-api-key:395
+63b3e5ce90a664997d94c420c194baabdc0519b9:docs/deployment-guide.md:generic-api-key:396
+63b3e5ce90a664997d94c420c194baabdc0519b9:docs/deployment-guide.md:generic-api-key:242
+63b3e5ce90a664997d94c420c194baabdc0519b9:docs/deployment-guide.md:generic-api-key:243
+63b3e5ce90a664997d94c420c194baabdc0519b9:docs/deployment-guide.md:generic-api-key:244
+
+# Any future commits with similar patterns
+scripts/deploy-all.ps1:generic-api-key
+docs/deployment-guide.md:generic-api-key
