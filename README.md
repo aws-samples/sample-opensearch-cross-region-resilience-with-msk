@@ -7,27 +7,9 @@ A serverless, active-active cross-region architecture for Amazon OpenSearch usin
 
 ## Architecture
 
-```
-┌─────────────────────────────────────┐     ┌─────────────────────────────────────┐
-│         PRIMARY (us-east-1)         │     │        SECONDARY (us-west-2)        │
-│                                     │     │                                     │
-│  ┌─────────┐    ┌───────────────┐   │     │   ┌───────────────┐    ┌─────────┐  │
-│  │ Lambda  │───▶│  MSK Cluster  │◀──┼─────┼──▶│  MSK Cluster  │◀───│ Lambda  │  │
-│  └─────────┘    └───────┬───────┘   │     │   └───────┬───────┘    └─────────┘  │
-│                         │           │     │           │                         │
-│                         ▼           │     │           ▼                         │
-│                 ┌───────────────┐   │     │   ┌───────────────┐                 │
-│                 │ OSI Pipeline  │   │     │   │ OSI Pipeline  │                 │
-│                 └───────┬───────┘   │     │   └───────┬───────┘                 │
-│                         │           │     │           │                         │
-│                         ▼           │     │           ▼                         │
-│                 ┌───────────────┐   │     │   ┌───────────────┐                 │
-│                 │  OpenSearch   │   │     │   │  OpenSearch   │                 │
-│                 │  Serverless   │   │     │   │  Serverless   │                 │
-│                 └───────────────┘   │     │   └───────────────┘                 │
-└─────────────────────────────────────┘     └─────────────────────────────────────┘
-                    ◀───── MSK Replicator (Bidirectional) ─────▶
-```
+![Cross-Region Active-Active OpenSearch Architecture](architecture-diagram.jpg)
+
+*Cross-region active-active architecture with MSK Replicator providing bidirectional replication between regions.*
 
 ## Features
 
